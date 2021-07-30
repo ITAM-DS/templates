@@ -1,0 +1,2 @@
+
+Plantilla para escribir tesis/tesina en el ITAM. La plantilla original es de Farid Hannan Goyri y fue tomada de las plantillas disponibles [[https://www.overleaf.com][Overleaf]]. 
