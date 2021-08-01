@@ -1,0 +1,184 @@
+\documentclass[10pt,oneside, chapterprefix]{scrbook} %scrreprt, book, report, 
+%\documentclass[10pt,    a4paper,    oneside,    idxtotoc,    halfparskip,    chapterprefix]{scrbook}
+\usepackage[papersize={170mm,225mm},centering,margin=20mm,includehead,includefoot]{geometry}       
+%\geometry{letterpaper} 
+% Use utf-8 encoding for foreign characters
+\usepackage[utf8]{inputenc}  
+%\usepackage[LGR,T1]{fontenc}    
+\usepackage[spanish,mexico]{babel}  
+\usepackage[pdftex]{graphicx}
+\usepackage{pgf}
+% Setup for fullpage use
+\usepackage{fullpage}
+%Setup for multicolumn use
+\usepackage{multicol}
+\usepackage{amsmath}
+\usepackage{amssymb}
+%\usepackage[pdfstartview=FitH, pdftex, colorlinks=true,bookmarks=true]{hyperref}
+\usepackage{textcomp}
+\usepackage{tikz}
+\usepackage{verbatim}
+\usepackage{schemabloc}
+\usepackage{latexsym}
+\usepackage{lscape}
+\usepackage{epstopdf}
+\usepackage[Sonny]{fncychap}  %Sonny, Lenny, Glenn, Conny, Rejne and Bjarne
+\usepackage{enumitem}
+\usepackage[usenames,dvipsnames]{pstricks}
+\usepackage{epsfig}
+\usepackage{pst-grad} % For gradients
+\usepackage{pst-plot} % For axes
+\usepackage{subfigure}
+%\usepackage[framed, numbered, useliterate, autolinebreaks]{mcode}
+
+% -------------- Definición de interfacess ----------------------
+\newtheorem{theorem}{Teorema}
+\newtheorem{corollary}{Corolario}
+\newtheorem{definition}{Definición}
+\newtheorem{lemma}{Lema}
+\newtheorem{exercise}{Exercise}
+\newtheorem{remark}{Nota}
+\newtheorem{example}{Example}
+\newtheorem{warning}{Warning}
+\newtheorem{proposition}[theorem]{Proposición}
+
+\newenvironment{proof}[1][Prueba]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}]}{\end{trivlist}}
+
+\newcommand{\qed}{\nobreak \ifvmode \relax \else
+      \ifdim\lastskip<1.5em \hskip-\lastskip
+      \hskip1.5em plus0em minus0.5em \fi \nobreak
+      \vrule height0.75em width0.5em depth0.25em\fi}
+      
+%\renewcommand{\lstlistingname}{Cuadro}
+
+\def\grad{ \mbox{grad}}
+\def\curl{ \mbox{curl}}
+\def\div{ \mbox{div}}
+\def\U{\ensuremath {\cal U}}
+\def\S{\ensuremath {\cal S}}
+\def\V{\ensuremath {\cal V}}
+\def\R{\ensuremath {\cal R}}
+\def\tr{\ensuremath {\mbox{tr}}}
+
+
+% ------------------- Title and Author -----------------------------
+\title{Métodos de escalamiento en optimización de máquinas de soporte vectorial}
+\author{Alfredo Garbuno Iñigo}
+\date{}
+
+% ------------------- Esqueleto documento ------------------------- 
+\begin{document}
+\include{./capitulos/title}
+
+\newpage
+\section*{\phantom{Declaración}}
+``Con fundamento en los artículos 21 y 27 de la Ley Federal de Derecho de Autor y como titular de los derechos moral y patrimonial de la obra titulada \textbf{``Métodos de escalamiento en optimización de máquinas de soporte vectorial''}, otorgo de manera gratuita y permanente al Instituto Tecnológico Autónomo de México y a la biblioteca Raúl Baillères Jr., autorización para que fijen la obra en cualquier medio, incluido el electrónico, y la divulguen entre sus usuarios, profesores, estudiantes o terceras personas, sin que pueda percibir por tal divulgación una contraprestación''
+    \vspace{2em}
+    \\ \begin{center}
+    \vspace{2em}
+      {Alfredo Garbuno Iñigo } \\
+       \phantom{espacio} 
+      \vspace{5em}
+      \underline{\phantom{\small{ALFREDO GARBUNO IÑIGO} } }\\
+      \small{FECHA}      \\
+        \phantom{espacio} 
+      \vspace{5em}
+      \underline{\phantom{\small{ALFREDO GARBUNO IÑIGO} } }\\
+      \small{FIRMA} 
+      \end{center}
+
+%% Dedicatoria
+\newpage
+\thispagestyle{empty}
+$\,$
+\vspace{5.7cm}
+\begin{flushright}
+{\em {\Large A Yolanda y Jorge$^{\dagger}$}}
+\end{flushright}
+\clearpage
+
+\thispagestyle{empty}
+\section*{Agradecimientos}
+
+\noindent Lo más difícil fue escribir este párrafo. Sin saber que quiero hacer primero; honrar a mi familia y amigos que me han acompañado; celebrar amistades entrañables; festejar nuestra nueva aventura o hacerle un tributo al modelo que ha partido. Siempre vivirás en nuestros corazones.
+
+\maketitle
+\section*{Prólogo}
+En esta tesina se estudian dos métodos de escalamiento de máquinas de soporte vectorial (\texttt{MSV}) basados en el problema cuadrático que surge de su formulación dual. Ambos métodos difieren en su desarrollo, mientras el primero está más enfocado en el álgebra lineal utilizada, el segundo se involucra en mayor medida con la infraestructura utilizada para el entrenamiento de una \texttt{MSV}. Asimismo se presenta un tercer método que describe el desarrollo necesario para resolver la formulación primal bajo el paradigma MapReduce. A continuación se da una breve descripción del contenido de este trabajo.
+  
+\begin{enumerate}
+  \item {\bf Introducci\'on}. Mostramos una idea general de la importancia de las técnicas utilizadas para mejorar el rendimiento de los algoritmos.
+  \item {\bf Máquinas de soporte vectorial}. Exponemos los fundamentos, el planteamiento y desarrollo del problema de optimización involucrado. Esto para lograr uniformidad en los términos presentados a lo largo del trabajo.
+  \item {\bf Cómputo distribuido}. Repasamos conceptos, métricas y técnicas de calendarización en cómputo distribuido. Hablamos sobre el modelo de cómputo de MapReduce y también presentamos cómo se resolvería en este esquema el entrenamiento de las máquinas de soporte vectorial desde la formulación primal. 
+  \item {\bf Puntos interiores paralelizado}. Exponemos el desarrollo del algoritmo de puntos interiores para el problema cuadrático tal cual ha sido desarrollado en aplicaciones tradicionales. Exponemos el análisis y propiedades del uso de la factorización incompleta de Cholesky además del paralelizamiento de puntos interiores por renglones como una estrategia para el entrenamiento de \texttt{MSV}. 
+  \item {\bf Optimización mínima sucesiva}. Dado el problema de optimización relacionado con las máquinas de soporte mostramos una técnica particular para entrenar el modelo de manera analítica.
+  \item {\bf Conclusiones}.
+\end{enumerate}
+
+\pagenumbering{arabic}
+\tableofcontents
+
+%Recordar que este no es el orden definitivo
+\include{./capitulos/intro}
+\include{./capitulos/svm}
+\include{./capitulos/dist}
+\include{./capitulos/ipm}
+\include{./capitulos/smo}
+\include{./capitulos/conc}
+%\include{./Chapters/chapt6}
+
+\appendix
+%\include{./Chapters/appendix}
+
+\begin{thebibliography}{99}
+\bibitem{bekk}
+		{\sc R. Bekkerman, M. Bilenko and J. Langford}, {\em Scaling Up Machine Learning}, Cambridge Press, 2011.
+\bibitem{botou}
+	{\sc L. Bottou, O. Chapelle, D. DeCoste and J. Weston}, {\em Large-Scale Kernel Machines}, MIT Press, 2007.
+\bibitem{boyd}
+		{\sc S. Boyd and L. Vandenberghe}, {\em Convex Optimization}, Cambridge University Press, 2004.
+\bibitem{}
+		{\sc S. Boyd, N. Parikh, E. Chu, B. Peleato and J. Eckstein}, {\em Distributed Optimization and Statistical Learning via the Alternating Direction Method of Multipliers}, Foundations and Trends in Machine Learning Vol. 3, No. 1, 2010.
+\bibitem{chang2}
+		{\sc F. Chang, J. Dean, S. Ghemawat, W. Hsieh, D. Wallach, M. Burrows, T. Chandra, A. Fikes, and R. Gruber},
+		{\em Bigtable: A Distributed Storage System for Structured Data}, Google Research Publications, 2006. 
+\bibitem{chang}
+		{\sc E. Chang, H. Bai, K. Zhu, H. Wang, J. Li and Z. Qui}, {\em PSVM: Parallel Support Vector Machines with Incomplete Cholesky Factorization}, Scaling Up Machine Learning, Cambridge Press, 2011.
+\bibitem{chapelle}
+		{\sc O. Chapelle}, {\em Training a Support Vector Machine in the Primal}, Large-Scale Kernel Machines, MIT Press, 2006.
+\bibitem{chu}
+		{\sc C Chu, S. K. Kim, Y. Lin, Y. Yu, G. Bradski, A. Ng, and K. Olukotun}, {\em Map-Reduce for Machine Learning on Multicore}. Advances in neural information processing systems, 19, 281, 2007.
+\bibitem{cottle}
+		{\sc R. Cottle, J. Pang and R. Stone}, {\em The Linear Complementarity Problem}, Academic Press, 1992. 
+\bibitem{durdanovic}
+		{\sc I. Durdanovic, E. Cosatto, H. Graf, S. Cadambi, V. Jakkula, S. Chakradhar and A. Majumbdar}, 
+		{\em Massive SVM Parallelization Using Hardware Accelerators}, Scaling Up Machine Learning, Cambridge Press, 2011.
+\bibitem{fan}
+		{\sc R. Fan, P. Chen and C. Lin}, {\em Working Set Selection Using Second Order Information for Training Suppport Vector Machines}, Journal of Machine Learning Research, Vol. 6, 2005.
+\bibitem{fine}
+		{\sc S. Fine and K. Scheinberg}, {\em Efficient SVM trining using low-rank Kernel representations}, Journal of Machine Learning Research, 2, 243-264, 2001.
+\bibitem{hdfs}
+		{\sc S. Ghemawat, H. Gobioff, and S. Leung}, {\em The Google File System}, Google Research Publications, 2003.
+\bibitem{golub}
+		{\sc G. Golub and V. Loan}, {\em Matrix Computations}, Johns Hopkins University Press, 1996.
+\bibitem{hall}
+		{\sc K. Hall, S. Gilpin and G. Mann}, {\em MapReduce/Bigtable for Distributed Optimization}, Neural Information Processing Systems Workshop on Leaning on Cores, Clusters, and Clouds, 2010. 
+\bibitem{elem}
+		{\sc T. Hastie, R. Tibshirani and J. Friedman}, {\em Elements of statistical learning}, Springer, 2009. 
+ \bibitem{jorge}
+        {\sc J. Nocedal and S.J. Wright}, {\em Numerical Optimization}, 
+         Springer Verlag, New York,  Second ed., 2006.
+\bibitem{owens}
+		{\sc J. Owens, D. Luebke, N. Govindaraju, M. Harris, J. Krüger, A. Lefohn and T. Purcell}, {\em A Survey of General-Purpose Computation on Graphics Hardware}, 2007. 
+\bibitem{platt}
+		{\sc C. Platt}, \emph{Fast Training of Support Vector Machines using Sequential Minimal Optimization}, Microsoft Research. 
+\bibitem{smola}
+		{\sc B. Schölkopf and A. Smola}, {\em Learning with Kernels: Support Vector Machines, Regularization, Optimization and Beyond}, MIT Press, 2001.
+\end{thebibliography}
+
+%http://alpha.sagenb.org/home/pub/518/
+
+\end{document}
+
+
