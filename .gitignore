@@ -242,3 +242,4 @@ TSWLatexianTemp*
 *.spl
 /tesis-latex/.DS_Store
 */.DS_Store
+*.pdf
